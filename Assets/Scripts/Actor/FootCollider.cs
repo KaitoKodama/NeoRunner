@@ -8,6 +8,8 @@ public class FootCollider : MonoBehaviour
     private bool isThrowGround = false;
 
 
+    public delegate void OnGroundNotifyer();
+    public OnGroundNotifyer OnGroundNotifyerHandler;
     public bool IsThrowGround => isThrowGround;
     public bool IsGround => isGround;
 
@@ -19,6 +21,7 @@ public class FootCollider : MonoBehaviour
             if (collision.gameObject.CompareTag("Ground"))
             {
                 isGround = true;
+                OnGroundNotifyerHandler?.Invoke();
             }
         }
         if (!isGround || !isThrowGround)
@@ -27,6 +30,7 @@ public class FootCollider : MonoBehaviour
             {
                 isGround = true;
                 isThrowGround = true;
+                OnGroundNotifyerHandler?.Invoke();
             }
         }
     }

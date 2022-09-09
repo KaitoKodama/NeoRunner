@@ -22,11 +22,14 @@ public class StageSOEditor : Editor
 	GUIContent createIncrementLabel;
 	SerializedProperty createIncrementProp;
 
-	GUIContent offsetYLabel;
-	SerializedProperty offsetYProp;
+	GUIContent offsetBeginLabel;
+	SerializedProperty offsetBeginProp;
 
 	GUIContent offsetTypeLabel;
 	SerializedProperty offsetTypeProp;
+
+	GUIContent offsetLabel;
+	SerializedProperty offsetProp;
 
 	GUIContent fieldEnemyMaxLabel;
 	SerializedProperty fieldEnemyMaxProp;
@@ -60,12 +63,14 @@ public class StageSOEditor : Editor
 		createIncrementLabel = new GUIContent("増幅");
 		createIncrementProp = serializedObject.FindProperty("createIncrement");
 
-		offsetTypeLabel = new GUIContent("モード選択");
+		offsetBeginLabel = new GUIContent("画面指定");
+		offsetBeginProp = serializedObject.FindProperty("offsetBegin");
+
+		offsetTypeLabel = new GUIContent("タイプ指定");
 		offsetTypeProp = serializedObject.FindProperty("offsetType");
 
-		offsetYLabel = new GUIContent("指定のY座標");
-		offsetYProp = serializedObject.FindProperty("offsetY");
-
+		offsetLabel = new GUIContent("座標指定");
+		offsetProp = serializedObject.FindProperty("offset");
 
 		delayLabel = new GUIContent("初期遅延時間");
 		delayProp = serializedObject.FindProperty("delay");
@@ -100,11 +105,12 @@ public class StageSOEditor : Editor
 				EditorGUILayout.PropertyField(maxCreateEachProp, maxCreateEachLabel);
             }
         }
+		EditorGUILayout.PropertyField(offsetBeginProp, offsetBeginLabel);
 		EditorGUILayout.PropertyField(offsetTypeProp, offsetTypeLabel);
 		if (offsetTypeProp.intValue == 1)
-        {
-			EditorGUILayout.PropertyField(offsetYProp, offsetYLabel);
-        }
+		{
+			EditorGUILayout.PropertyField(offsetProp, offsetLabel);
+		}
 		EditorGUILayout.Space(20);
 
 		EditorGUILayout.HelpBox("出現時間情報", MessageType.None);

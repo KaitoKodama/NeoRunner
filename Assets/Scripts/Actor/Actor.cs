@@ -4,19 +4,27 @@ using UnityEngine;
 
 public class Actor : MonoBehaviour, IApplyDamage
 {
-    [SerializeField] GameObject bullet = default;
-    private bool isDeath = false;
+    [SerializeField]
+    protected float maxHP;
     protected float hp;
 
+    private bool isDeath = false;
+
+
+    //------------------------------------------
+    // 外部共有関数
+    //------------------------------------------
+    public float HP => hp;
+    public float MaxHP => maxHP;
+    public float ClampHP { get { return hp / maxHP; } }
 
     //------------------------------------------
     // 継承先共有関数
     //------------------------------------------
     protected bool IsDeath => isDeath;
-    protected void ExcuteBullet(Transform tips, Quaternion rotate, Vector2 force, float power)
+    protected void ExcuteBullet(Bullet bullet, Vector2 pos, Quaternion rot, Vector2 force, float power)
     {
-        var obj = Instantiate(bullet, tips.position, rotate);
-        obj.GetComponent<Bullet>().OnExcute(this, force, power);
+        bullet.OnExcute(pos, rot, force, power);
     }
 
 
@@ -29,6 +37,7 @@ public class Actor : MonoBehaviour, IApplyDamage
     //------------------------------------------
     // 継承先共有抽象関数
     //------------------------------------------
+    protected virtual void OnDamage() { }
     protected virtual void OnDeath() { }
 
 
@@ -45,6 +54,10 @@ public class Actor : MonoBehaviour, IApplyDamage
                 hp = 0;
                 isDeath = true;
                 OnDeath();
+            }
+            else
+            {
+                OnDamage();
             }
         }
     }

@@ -5,7 +5,8 @@ using UnityEngine;
 public class SmoothCamera2D : MonoBehaviour
 {
     [SerializeField] Vector2 offset;
-    [SerializeField] float speed = 5f;
+    [SerializeField] float speedX = 3f;
+    [SerializeField] float speedY = 25f;
     [SerializeField] float depth = -10f;
     private Transform targetform;
     private Transform _transform;
@@ -21,8 +22,8 @@ public class SmoothCamera2D : MonoBehaviour
     {
         if (targetform != null)
         {
-            float x = Mathf.Lerp(_transform.position.x, targetform.position.x + offset.x, speed * Time.deltaTime);
-            float y = Mathf.Lerp(_transform.position.y, targetform.position.y + offset.y, speed * Time.deltaTime);
+            float x = Mathf.Lerp(_transform.position.x, _transform.position.x + 1, speedX * Time.fixedDeltaTime);
+            float y = Mathf.Lerp(_transform.position.y, targetform.position.y + offset.y, speedY * Time.fixedDeltaTime);
             _transform.position = new Vector3(x, y, depth);
         }
     }

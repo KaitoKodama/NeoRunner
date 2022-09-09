@@ -25,6 +25,13 @@ public class AnyDictionary<Tkey, Tvalue>
 	}
 }
 
+[System.Serializable]
+public struct FromTo
+{
+	public float from;
+	public float to;
+}
+
 
 //------------------------------------------
 // インターフェイス
@@ -32,6 +39,11 @@ public class AnyDictionary<Tkey, Tvalue>
 public interface IApplyDamage
 {
 	void ApplyDamage(float damage);
+}
+public interface IItemReciever
+{
+	void ApplyRecover(float value);
+	void ApplyBullet(float num);
 }
 
 
@@ -87,6 +99,15 @@ namespace CMN
 			if (fPercent == 100.0f && fProbabilityRate == fPercent) return true;
 			else if (fProbabilityRate < fPercent) return true;
 			else return false;
+		}
+		public static Vector3 CircleHorizon(Vector2 origin, float min, float max)
+		{
+			var angle = UnityEngine.Random.Range(0, 360);
+			var radius = UnityEngine.Random.Range(min, max);
+			var rad = angle * Mathf.Deg2Rad;
+			var px = Mathf.Cos(rad) * radius;
+			var py = Mathf.Sin(rad) * radius;
+			return new Vector3(px + origin.x, py + origin.y, 0);
 		}
 	}
 }

@@ -9,6 +9,8 @@ TagManager:
   - Joystick
   - Ground
   - ThrowGround
+  - TeleportPoint
+  - Item
   layers:
   - Default
   - TransparentFX
@@ -19,9 +21,9 @@ TagManager:
   - FloatingEnemy
   - GroundedEnemy
   - ThrowGround
-  - 
-  - 
-  - 
+  - Side
+  - Item
+  - Player
   - 
   - 
   - 

@@ -6,13 +6,6 @@ using State = StateMachine<Drone>.State;
 
 public class Drone : Enemy
 {
-    [SerializeField] private float speed = 5f;
-    [SerializeField] float bulletSpeed = 5f;
-    [SerializeField] float power = 5f;
-    [SerializeField] float attackDuration = 0.5f;
-    [SerializeField] float attackBeginDistance;
-    [SerializeField] float chaseBeginDistance;
-
     private SpriteRenderer render;
     private StateMachine<Drone> stateMachine;
     private float freezeBrokenCount = 0f;
@@ -35,8 +28,9 @@ public class Drone : Enemy
         stateMachine.AddAnyTransition<StateDeath>(((int)Event.Death));
         stateMachine.Start<StateLocomotion>();
     }
-    private void Update()
+    new void Update()
     {
+        base.Update();
         stateMachine.Update();
         if (isFreeze && !isBroken)
         {
@@ -94,7 +88,7 @@ public class Drone : Enemy
         {
             if (!owner.isFreeze)
             {
-                owner.ForceToPlayer(owner.speed);
+                owner.ForceToPlayer(owner.data.Speed);
             }
             else
             {
@@ -107,7 +101,7 @@ public class Drone : Enemy
             {
                 owner.RotateFwd();
             }
-            if (owner.IsInDistance(owner.attackBeginDistance))
+            if (owner.IsInDistance(owner.data.AttackDistance))
             {
                 stateMachine.Dispatch(((int)Event.Attack));
             }
@@ -124,13 +118,13 @@ public class Drone : Enemy
         protected override void OnUpdate()
         {
             owner.RotateFwd();
-            if (!owner.IsInDistance(owner.chaseBeginDistance))
+            if (!owner.IsInDistance(owner.data.ChaseDistance))
             {
                 stateMachine.Dispatch(((int)Event.Locomotion));
             }
             else
             {
-                owner.GapUpdateOnFire(ref time, owner.attackDuration, owner.bulletSpeed, owner.power);
+                owner.GapUpdateOnFire(ref time, owner.data.BulletDuration, owner.data.BulletSpeed, owner.data.BulletPower);
             }
         }
     }

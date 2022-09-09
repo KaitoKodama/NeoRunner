@@ -6,13 +6,6 @@ using State = StateMachine<Cop>.State;
 
 public class Cop : Enemy
 {
-    [SerializeField] private float speed = 5f;
-    [SerializeField] float bulletSpeed = 5f;
-    [SerializeField] float power = 5f;
-    [SerializeField] float attackDuration = 0.5f;
-    [SerializeField] float attackBeginDistance;
-    [SerializeField] float chaseBeginDistance;
-
     private readonly int VelocityHash = Animator.StringToHash("Velocity");
     private readonly int IsAttackHash = Animator.StringToHash("IsAttack");
 
@@ -36,8 +29,9 @@ public class Cop : Enemy
         stateMachine.AddAnyTransition<StateDeath>(((int)Event.Death));
         stateMachine.Start<StateLocomotion>();
     }
-    private void Update()
+    new void Update()
     {
+        base.Update();
         stateMachine.Update();
     }
     private void FixedUpdate()
@@ -68,11 +62,11 @@ public class Cop : Enemy
         protected override void OnFixedUpdate()
         {
             float gravity = owner.footCollider.IsGround ? -1f : -9.81f;
-            owner.ForceToPlayer(owner.speed, gravity);
+            owner.ForceToPlayer(owner.data.Speed, gravity);
         }
         protected override void OnUpdate()
         {
-            if (owner.IsInDistance(owner.attackBeginDistance))
+            if (owner.IsInDistance(owner.data.AttackDistance))
             {
                 stateMachine.Dispatch(((int)Event.Attack));
             }
@@ -89,16 +83,20 @@ public class Cop : Enemy
             owner.animator.SetBool(owner.IsAttackHash, true);
             owner.Rigid.velocity = Vector2.zero;
         }
+        protected override void OnFixedUpdate()
+        {
+            owner.ForceGravity(-9.81f);
+        }
         protected override void OnUpdate()
         {
             owner.RotateFwd();
-            if (!owner.IsInDistance(owner.chaseBeginDistance))
+            if (!owner.IsInDistance(owner.data.ChaseDistance))
             {
                 stateMachine.Dispatch(((int)Event.Locomotion));
             }
             else
             {
-                owner.GapUpdateOnFire(ref time, owner.attackDuration, owner.bulletSpeed, owner.power);
+                owner.GapUpdateOnFire(ref time, owner.data.BulletDuration, owner.data.BulletSpeed, owner.data.BulletPower);
             }
         }
         protected override void OnExit(State nextState)

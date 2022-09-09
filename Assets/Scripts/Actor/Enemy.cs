@@ -7,12 +7,20 @@ using DG.Tweening;
 [RequireComponent(typeof(Rigidbody2D))]
 public class Enemy : Actor
 {
-    [Space(20)]
-    [Header("TagとLayerの指定を確認してください")]
-    [Space(20)]
+    [SerializeField] 
+    protected SOEnemy data = default;
+
     [SerializeField] GameObject[] explodes = default;
+    [SerializeField] AudioClip shootSound = default;
+    [SerializeField] AudioClip explodeSound = default;
+
+
     private Rigidbody2D rigid;
+    private AudioSource audioSource;
     private Transform playerform;
+    private float isVisibleTime = 5;
+    private float isVisibleCount = 0;
+    private bool isVisible = false;
 
 
     //------------------------------------------
@@ -20,8 +28,39 @@ public class Enemy : Actor
     //------------------------------------------
     protected void Start()
     {
+        maxHP = data.MaxHP;
+        hp = maxHP;
+
         rigid = GetComponent<Rigidbody2D>();
+        audioSource = GetComponent<AudioSource>();
         playerform = GameObject.FindWithTag("Player").transform;
+    }
+    protected void Update()
+    {
+        if (!isVisible)
+        {
+            isVisibleCount += Time.deltaTime;
+            if (isVisibleCount >= isVisibleTime)
+            {
+                OnDestroyNotifyerHandler?.Invoke(this);
+                Destroy(this.gameObject);
+            }
+        }
+        if (transform.position.y <= -50f)
+        {
+            OnDestroyNotifyerHandler?.Invoke(this);
+            Destroy(this.gameObject);
+        }
+    }
+    private void OnBecameVisible()
+    {
+        isVisibleCount = 0;
+        isVisible = true;
+    }
+    private void OnBecameInvisible()
+    {
+        isVisibleCount = 0;
+        isVisible = false;
     }
 
 
@@ -29,13 +68,16 @@ public class Enemy : Actor
     // 外部共有関数
     //------------------------------------------
     public delegate void OnDeathNotifyer(Enemy enemy);
+    public delegate void OnDestroyNotifyer(Enemy enemy);
     public OnDeathNotifyer OnDeathNotifyerHandler;
+    public OnDestroyNotifyer OnDestroyNotifyerHandler;
 
 
     //------------------------------------------
     // 継承先共有関数
     //------------------------------------------
     protected Rigidbody2D Rigid => rigid;
+    protected Transform Playerform => playerform;
     protected void ForceToPlayer(float speed, float gravity = 0)
     {
         if (playerform != null)
@@ -47,6 +89,21 @@ public class Enemy : Actor
             }
             rigid.velocity = force * speed;
         }
+    }
+    protected void Force(Vector2 expect, float speed, float gravity = 0)
+    {
+        if (playerform != null)
+        {
+            if (gravity != 0)
+            {
+                expect.y = gravity;
+            }
+            rigid.velocity = expect * speed;
+        }
+    }
+    protected void ForceGravity(float gravity)
+    {
+        rigid.velocity = Vector2.up * gravity;
     }
     protected void RotateFwd()
     {
@@ -70,7 +127,13 @@ public class Enemy : Actor
         {
             var dir = GetDirection();
             var rotate = Quaternion.FromToRotation(Vector2.right, dir);
-            ExcuteBullet(transform, rotate, dir * speed, power);
+
+            var bullet = Locator<BulletPool>.I.GetEnemyBullet();
+            if (bullet != null)
+            {
+                ExcuteBullet(bullet, transform.position, rotate, dir * speed, power);
+                audioSource.PlayOneShot(shootSound);
+            }
             time = 0;
         }
         time += Time.deltaTime;
@@ -100,6 +163,7 @@ public class Enemy : Actor
     }
     protected void RequestDeathEffect()
     {
+        audioSource.PlayOneShot(explodeSound);
         StartCoroutine(IDeathEffect());
     }
 
@@ -114,8 +178,13 @@ public class Enemy : Actor
             float gap = 0.3f;
             var wait = new WaitForSeconds(gap);
             float duration = explodes.Length * gap;
-            Camera.main.DOShakePosition(duration / 2, 0.5f);
             gameObject.GetComponent<SpriteRenderer>().DOFade(0, duration / 2);
+
+            for (int i = 0; i < data.SupplyItemNum; i++)
+            {
+                var bullet = Locator<ItemPool>.I.GetJell();
+                bullet?.OnExcute(transform.position);
+            }
 
             foreach (var obj in explodes)
             {
@@ -125,7 +194,7 @@ public class Enemy : Actor
 
             yield return new WaitForSeconds(duration - gap);
             OnDeathNotifyerHandler?.Invoke(this);
-            Destroy(this.gameObject);
+            gameObject.SetActive(false);
         }
     }
 }
