@@ -44,7 +44,7 @@ public class Actor : MonoBehaviour, IApplyDamage
     //------------------------------------------
     // インターフェイス
     //------------------------------------------
-    public void ApplyDamage(float damage)
+    public virtual void ApplyDamage(float damage)
     {
         if (!isDeath)
         {

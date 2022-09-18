@@ -161,17 +161,17 @@ public class Enemy : Actor
         }
         return false;
     }
-    protected void RequestDeathEffect()
+    protected void RequestDeathEffect(float recoverRate = 15f)
     {
         audioSource.PlayOneShot(explodeSound);
-        StartCoroutine(IDeathEffect());
+        StartCoroutine(IDeathEffect(recoverRate));
     }
 
 
     //------------------------------------------
     // ì‡ïîã§óLä÷êî
     //------------------------------------------
-    private IEnumerator IDeathEffect()
+    private IEnumerator IDeathEffect(float recoverRate)
     {
         if(explodes != null)
         {
@@ -182,7 +182,7 @@ public class Enemy : Actor
 
             for (int i = 0; i < data.SupplyItemNum; i++)
             {
-                var bullet = Locator<ItemPool>.I.GetJell();
+                var bullet = Locator<ItemPool>.I.GetJell(recoverRate);
                 bullet?.OnExcute(transform.position);
             }
 

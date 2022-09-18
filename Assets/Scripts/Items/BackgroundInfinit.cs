@@ -7,7 +7,7 @@ public class BackgroundInfinit : MonoBehaviour
 	[SerializeField] GameObject[] prefabs = default;
 	[SerializeField] float offsetY = default;
 
-	private Transform playerform;
+	private Transform camform;
 	private float prevWidth = 0;
 	private float offset_x = 0f;
 
@@ -15,12 +15,12 @@ public class BackgroundInfinit : MonoBehaviour
 	private void Start()
 	{
 		transform.position = new Vector3(0, 0, 0);
-		playerform = GameObject.FindWithTag("Player").transform;
+		camform = Camera.main.transform;
 		CreateNewStage(0);
 	}
     private void Update()
     {
-		if (playerform.position.x + prevWidth > offset_x)
+		if (camform.position.x + prevWidth > offset_x)
 		{
 			int rndNum = Random.Range(0, prefabs.Length);
 			CreateNewStage(rndNum);

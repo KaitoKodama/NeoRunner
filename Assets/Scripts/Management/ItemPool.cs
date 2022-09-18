@@ -42,9 +42,9 @@ public class ItemPool : MonoBehaviour
     }
 
 
-    public Jell GetJell()
+    public Jell GetJell(float recoverRate)
     {
-        Jell jell = Utility.Probability(85f) ? GetJellBullet() : GetJellRecover();
+        Jell jell = Utility.Probability(recoverRate) ? GetJellRecover() : GetJellBullet();
         if (jell != null)
         {
             return jell;

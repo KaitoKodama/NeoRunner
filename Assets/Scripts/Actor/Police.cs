@@ -10,6 +10,9 @@ public class Police : Enemy
     [SerializeField] FromTo range = default;
     private SpriteRenderer render;
     private StateMachine<Police> stateMachine;
+
+    private float time = 0;
+    private float elapseAttack = 5f;
     private bool isStopAttack = false;
 
 
@@ -31,6 +34,16 @@ public class Police : Enemy
     {
         base.Update();
         stateMachine.Update();
+        if (!IsDeath && isStopAttack)
+        {
+            time += Time.deltaTime;
+            if (time >= elapseAttack)
+            {
+                time = 0;
+                render.color = Color.white;
+                isStopAttack = false;
+            }
+        }
     }
     private void FixedUpdate()
     {
@@ -40,16 +53,9 @@ public class Police : Enemy
     {
         if (collision.gameObject.CompareTag("Player"))
         {
+            time = 0;
             render.color = Color.gray;
             isStopAttack = true;
-        }
-    }
-    private void OnCollisionExit2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            render.color = Color.white;
-            isStopAttack = false;
         }
     }
 

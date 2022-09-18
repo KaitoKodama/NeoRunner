@@ -26,11 +26,12 @@ public class Player : Actor, IItemReciever
     private float speed = 10;
     private float jumpSpeed = 25;
     private float gravity = -1;
+    private float gravityDefault;
     private float power = 5;
     private float maxBulletNum = 100;
     private float bulletNum;
     private int jumpCount = 0;
-    private int jumpMaxTime = 3;
+    private int jumpMaxTime = 5;
     private float shootTime;
     private float shootGap = 0.1f;
     private bool isJump = false;
@@ -59,6 +60,7 @@ public class Player : Actor, IItemReciever
     {
         hp = maxHP;
         bulletNum = maxBulletNum;
+        gravityDefault = gravity;
 
         stateMachine = new StateMachine<Player>(this);
         stateMachine.AddTransition<StateLocomotion, StateAttack>((int)Event.Attack);
@@ -113,8 +115,9 @@ public class Player : Actor, IItemReciever
         var force = new Vector2(x, y);
         rigid.velocity = force;
     }
-    private void ConformToJump()
+    private void ConformToAction()
     {
+        //ƒWƒƒƒ“ƒv
         if (jumpCount < jumpMaxTime - 1)
         {
             if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
@@ -126,6 +129,19 @@ public class Player : Actor, IItemReciever
         if (foot.IsGround)
         {
             jumpCount = 0;
+        }
+
+        //d—Í’²®
+        if (!foot.IsGround)
+        {
+            if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+            {
+                gravity = -1.5f;
+            }
+        }
+        else
+        {
+            gravity = gravityDefault;
         }
     }
     private void ConformForceToJump()
@@ -164,9 +180,9 @@ public class Player : Actor, IItemReciever
                     var bullet = Locator<BulletPool>.I.GetPlayerBullet();
                     if (bullet != null)
                     {
+                        float speed = bulletSpeed + Mathf.Abs(rigid.velocity.x);
                         float eulerY = (transform.right.x == 1) ? 0 : 180;
                         var rotate = Quaternion.Euler(new Vector3(0, eulerY, 0));
-                        float speed = bulletSpeed + Mathf.Abs(rigid.velocity.x);
                         var dir = transform.right * speed;
                         ExcuteBullet(bullet, tips.position, rotate, dir, power);
 
@@ -285,7 +301,7 @@ public class Player : Actor, IItemReciever
                 stateMachine.Dispatch(((int)Event.Attack));
             }
 
-            owner.ConformToJump();
+            owner.ConformToAction();
             owner.RotateFwd(horizontal);
             owner.OnGroundThrowFromButtonDown();
             owner.OnShootFromButtonDown();
@@ -308,7 +324,7 @@ public class Player : Actor, IItemReciever
         {
             horizontal = Input.GetAxis("Horizontal");
 
-            owner.ConformToJump();
+            owner.ConformToAction();
             owner.RotateFwd(horizontal);
             owner.OnShootFromButtonDown();
             owner.OnGroundThrowFromButtonDown();
